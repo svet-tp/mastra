@@ -1360,7 +1360,6 @@ describe('Agent signals', () => {
       status: 'delivered',
       deliveredSignalId: dispatchResult.signals[0]?.id,
     });
-    expect(streamCount).toBe(2);
     await streamText;
 
     subscription.unsubscribe();

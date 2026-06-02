@@ -96,6 +96,7 @@ export class InMemoryStore extends MastraCompositeStore {
     void this.stores.channels?.dangerouslyClearAll?.();
     void this.stores.notifications?.dangerouslyClearAll?.();
     void this.stores.harness?.dangerouslyClearAll?.();
+    void this.stores.notifications?.dangerouslyClearAll?.();
   }
 }
 

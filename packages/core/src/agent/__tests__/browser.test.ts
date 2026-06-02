@@ -171,8 +171,8 @@ describe('Agent browser integration', () => {
       // Execute a generate call - this should inject browser context
       const result = await agent.generate('Hello');
 
-      // Without a threadId, browser context injection calls isBrowserRunning and getBrowserState.
-      // hasThreadSession is only called when a threadId is provided.
+      // Without a threadId, browser context injection calls isBrowserRunning and getBrowserState
+      // hasThreadSession is only called when a threadId is provided
       expect(browser.isBrowserRunning).toHaveBeenCalled();
       expect(browser.getBrowserState).toHaveBeenCalled();
       expect(browser.getSessionId).toHaveBeenCalled();
