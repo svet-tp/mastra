@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AssistantMessageComponent } from '../../components/assistant-message.js';
 import { isChatBoundarySpacer } from '../../components/chat-boundary-spacer.js';
 import { NotificationSummaryComponent } from '../../components/notification-summary.js';
+import { NotificationComponent } from '../../components/notification.js';
 import { SystemReminderComponent } from '../../components/system-reminder.js';
 import { TemporalGapComponent } from '../../components/temporal-gap.js';
 import { ToolExecutionComponentEnhanced } from '../../components/tool-execution-enhanced.js';
@@ -146,6 +147,29 @@ describe('handleMessageUpdate system reminders', () => {
     const rendered = stripAnsi((component as NotificationSummaryComponent).render(80).join('\n'));
     expect(rendered).toContain('Notification summary: 1 pending');
     expect(rendered).toContain('mastracode: 1');
+  });
+
+  it('renders a streamed full notification as an inline component', () => {
+    handleMessageUpdate(
+      ctx,
+      createAssistantMessage([
+        {
+          type: 'notification',
+          message: 'CI failed on main',
+          source: 'github',
+          kind: 'ci-status',
+          priority: 'high',
+          status: 'delivered',
+        } as never,
+      ]),
+    );
+
+    expect(state.chatContainer.children).toHaveLength(1);
+    const component = state.chatContainer.children[0];
+    expect(component).toBeInstanceOf(NotificationComponent);
+    const rendered = stripAnsi((component as NotificationComponent).render(80).join('\n'));
+    expect(rendered).toContain('Notification: github: ci-status');
+    expect(rendered).toContain('CI failed on main');
   });
 
   it('deduplicates repeated streamed reminders within the same assistant run', () => {
