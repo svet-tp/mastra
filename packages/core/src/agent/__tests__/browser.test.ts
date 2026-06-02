@@ -42,6 +42,16 @@ function createMockBrowser(
   }
 
   const browserId = options.id ?? 'mock-browser-id';
+  const browserState = {
+    activeTabIndex: 0,
+    tabs: [
+      {
+        id: 'tab-1',
+        url: 'https://example.com',
+        title: 'Example',
+      },
+    ],
+  };
 
   return {
     id: browserId,
@@ -56,6 +66,7 @@ function createMockBrowser(
       .fn()
       .mockImplementation((threadId?: string) => (threadId ? `${browserId}:${threadId}` : browserId)),
     getCurrentUrl: vi.fn().mockResolvedValue('https://example.com'),
+    getBrowserState: vi.fn().mockResolvedValue(browserState),
     startScreencast: vi.fn().mockResolvedValue({ on: vi.fn(), stop: vi.fn() }),
     startScreencastIfBrowserActive: vi.fn().mockResolvedValue(null),
     injectMouseEvent: vi.fn().mockResolvedValue(undefined),
@@ -160,10 +171,10 @@ describe('Agent browser integration', () => {
       // Execute a generate call - this should inject browser context
       const result = await agent.generate('Hello');
 
-      // Without a threadId, browser context injection calls isBrowserRunning and getCurrentUrl
-      // hasThreadSession is only called when a threadId is provided
+      // Without a threadId, browser context injection calls isBrowserRunning and getBrowserState.
+      // hasThreadSession is only called when a threadId is provided.
       expect(browser.isBrowserRunning).toHaveBeenCalled();
-      expect(browser.getCurrentUrl).toHaveBeenCalled();
+      expect(browser.getBrowserState).toHaveBeenCalled();
       expect(browser.getSessionId).toHaveBeenCalled();
 
       // Verify the result completed successfully
@@ -190,10 +201,10 @@ describe('Agent browser integration', () => {
         memory: { thread: 'test-thread-123' },
       });
 
-      // With a threadId, browser context injection should also check hasThreadSession
+      // With a threadId, browser context injection should also check hasThreadSession.
       expect(browser.isBrowserRunning).toHaveBeenCalled();
       expect(browser.hasThreadSession).toHaveBeenCalledWith('test-thread-123');
-      expect(browser.getCurrentUrl).toHaveBeenCalledWith('test-thread-123');
+      expect(browser.getBrowserState).toHaveBeenCalledWith('test-thread-123');
       expect(browser.getSessionId).toHaveBeenCalledWith('test-thread-123');
 
       // Verify the result completed successfully

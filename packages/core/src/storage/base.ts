@@ -19,6 +19,7 @@ import type {
   BackgroundTasksStorage,
   SchedulesStorage,
   ChannelsStorage,
+  HarnessStorage,
   ToolProviderConnectionsStorage,
   NotificationsStorage,
 } from './domains';
@@ -44,6 +45,7 @@ export type StorageDomains = {
   blobs?: BlobStore;
   backgroundTasks?: BackgroundTasksStorage;
   schedules?: SchedulesStorage;
+  harness?: HarnessStorage;
   toolProviderConnections?: ToolProviderConnectionsStorage;
 };
 
@@ -237,7 +239,7 @@ export interface MastraCompositeStoreConfig {
  */
 export interface StorageMastraRef {
   getAgentById?: (id: string) => { source?: string; __getEditorConfig?: () => unknown } | undefined;
-  getEditor?: () => { getMode?: () => 'code' | 'db' | undefined } | undefined;
+  getEditor?: () => { getSource?: () => 'code' | 'db' | undefined } | undefined;
 }
 
 export class MastraCompositeStore extends MastraBase {
@@ -329,6 +331,7 @@ export class MastraCompositeStore extends MastraBase {
         backgroundTasks: resolve('backgroundTasks'),
         schedules: resolve('schedules'),
         channels: resolve('channels'),
+        harness: resolve('harness'),
         toolProviderConnections: resolve('toolProviderConnections'),
         notifications: resolve('notifications'),
       } as StorageDomains;
@@ -457,6 +460,7 @@ export class MastraCompositeStore extends MastraBase {
       maybeInit(this.stores.backgroundTasks);
       maybeInit(this.stores.schedules);
       maybeInit(this.stores.channels);
+      maybeInit(this.stores.harness);
       maybeInit(this.stores.toolProviderConnections);
       maybeInit(this.stores.notifications);
     }
@@ -464,6 +468,13 @@ export class MastraCompositeStore extends MastraBase {
     await Promise.all(initTasks);
     return true;
   }
+  /**
+   * Optional lifecycle hook: release underlying client/connection handles.
+   * Implementations (e.g. LibSQLStore) override this to checkpoint WAL files
+   * and close the database client so OS handles are freed synchronously.
+   * Called automatically by Mastra.shutdown().
+   */
+  close?(): Promise<void>;
 }
 
 /**

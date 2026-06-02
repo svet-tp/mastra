@@ -568,7 +568,8 @@ describe('toUIMessage', () => {
         data: {
           id: 'signal-1',
           type: 'user',
-          contents: 'hello from signal',
+          tagName: 'user',
+          contents: { role: 'user', content: [{ type: 'text', text: 'hello from signal' }] },
         },
         runId: 'run-123',
         from: ChunkFrom.AGENT,
